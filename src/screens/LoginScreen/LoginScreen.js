@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -9,31 +10,108 @@ import {
   View,
 } from 'react-native';
 import {COLORS, images} from '../../constants';
+import {connect} from 'react-redux';
+import {login} from '../../redux/actions/user';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = props => {
   const [account, setAccount] = useState({
     email: '',
     password: '',
   });
-  console.log(account);
+  const [isValid, setIsValid] = useState({
+    emailValid: false,
+    passwordValid: false,
+  });
+  const [error, setError] = useState({
+    emailError: null,
+    passwordError: null,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (props.user.user !== null && props.user.user !== undefined) {
+      props.navigation.navigate('Main');
+    }
+  }, [props.user]);
+
+  const validation = (name, value) => {
+    if (name == 'email') {
+      const emailValue = value;
+      const emailRegEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+      if (emailRegEx.test(emailValue)) {
+        setIsValid(prevState => ({
+          ...prevState,
+          emailValid: true,
+        }));
+        setError(prevState => ({
+          ...prevState,
+          emailError: null,
+        }));
+      } else {
+        setError(prevState => ({
+          ...prevState,
+          emailError: 'You have entered an invalid email address!',
+        }));
+        setIsValid(prevState => ({
+          ...prevState,
+          emailValid: false,
+        }));
+      }
+    } else {
+      const passwordValue = value;
+      const passwordRegEx = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/;
+      if (passwordRegEx.test(passwordValue)) {
+        setIsValid(prevState => ({
+          ...prevState,
+          passwordValid: true,
+        }));
+        setError(prevState => ({
+          ...prevState,
+          passwordError: null,
+        }));
+      } else {
+        let errors = '';
+        if (passwordValue.length < 8) {
+          errors = 'Your password must be at least 8 characters';
+        } else if (passwordValue.search(/[a-zA-Z]/) < 0) {
+          errors = 'Your password must contain at least one letter.';
+        } else if (passwordValue.search(/[0-9]/) < 0) {
+          errors = 'Your password must contain at least one digit.';
+        }
+        setError(prevState => ({
+          ...prevState,
+          passwordError: errors,
+        }));
+        setIsValid(prevState => ({
+          ...prevState,
+          passwordValid: false,
+        }));
+      }
+    }
+  };
 
   const handleChange = (name, text) => {
     if (name == 'email') {
-      const val1 = text;
+      const emailValue = text;
+      validation('email', emailValue);
       setAccount(prevState => ({
         ...prevState,
-        [name]: val1,
+        [name]: emailValue,
       }));
     } else {
+      const passwordValue = text;
+      validation('password', passwordValue);
       setAccount(prevState => ({
         ...prevState,
-        [name]: text,
+        [name]: passwordValue,
       }));
     }
   };
 
-  const handleSignIn = () => {
-    console.log('Sign In');
+  const handleSignIn = async () => {
+    console.log(account);
+    setIsLoading(true);
+    await props.login(account);
   };
   return (
     <ScrollView style={styles.main}>
@@ -47,6 +125,7 @@ const LoginScreen = ({navigation}) => {
           <TextInput
             style={styles.input}
             name="email"
+            textContentType="emailAddress"
             value={account.email}
             onChangeText={text => handleChange('email', text)}
             placeholder="Email"
@@ -56,22 +135,43 @@ const LoginScreen = ({navigation}) => {
           <TextInput
             style={styles.input}
             name="password"
+            textContentType="password"
             value={account.password}
             onChangeText={text => handleChange('password', text)}
             secureTextEntry={true}
             placeholder="Password"
             placeholderTextColor="#000"
           />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleSignIn()}
-          >
-            <Text style={styles.buttonText}>Sign In</Text>
-          </TouchableOpacity>
+          {/* <View style={{flexDirection: 'row'}}> */}
+          {error.passwordError ? (
+            <Text style={styles.textError}>{error.passwordError}</Text>
+          ) : null}
+          {error.emailError ? (
+            <Text style={styles.textError}>{error.emailError}</Text>
+          ) : null}
+          {/* </View> */}
+          {isValid.emailValid == true && isValid.passwordValid == true ? (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleSignIn()}
+            >
+              {isLoading ? (
+                <ActivityIndicator animating={true} color={COLORS.blue} />
+              ) : (
+                <Text style={styles.buttonText}>Sign In</Text>
+              )}
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.buttonDisabled} disabled>
+              <Text style={styles.buttonTextDisabled}>Sign In</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View style={{flexDirection: 'row'}}>
           <Text style={styles.textMini}>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.replace('Register')}>
+          <TouchableOpacity
+            onPress={() => props.navigation.navigate('Register')}
+          >
             <Text style={styles.textLink}> Register here</Text>
           </TouchableOpacity>
         </View>
@@ -80,7 +180,15 @@ const LoginScreen = ({navigation}) => {
   );
 };
 
-export default LoginScreen;
+const mapStateToProps = state => ({
+  user: state.user,
+});
+
+const mapDispatchToProps = dispatch => ({
+  login: body => dispatch(login(body)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);
 
 const styles = StyleSheet.create({
   main: {
@@ -140,10 +248,29 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 10,
   },
+  textError: {
+    fontSize: 12,
+    color: COLORS.red,
+    fontFamily: 'Montserrat-Regular',
+    letterSpacing: 1,
+    lineHeight: 20,
+    marginTop: 10,
+    marginHorizontal: 20,
+  },
   button: {
     height: 45,
     marginHorizontal: 20,
     backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonDisabled: {
+    height: 45,
+    marginHorizontal: 20,
+    backgroundColor: COLORS.third,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -152,7 +279,15 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Montserrat-Bold',
     fontSize: 18,
-    color: COLORS.white,
+    fontWeight: '900',
+    color: COLORS.black,
+  },
+  buttonTextDisabled: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 18,
+    fontWeight: '900',
+    opacity: 0.5,
+    color: COLORS.black,
   },
   textMini: {
     fontSize: 12,

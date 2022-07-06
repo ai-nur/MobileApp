@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   textTab: isFocused => ({
-    minWidth: '25%',
     fontSize: isFocused ? 15 : 14,
     fontWeight: '900',
     color: isFocused ? COLORS.black : COLORS.black,

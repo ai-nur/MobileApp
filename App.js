@@ -1,7 +1,7 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React from 'react';
+import * as React from 'react';
 import BottomNav from './src/components/BottomNav/BottomNav';
 import {
   AccountScreen,
@@ -23,9 +23,9 @@ const MainApp = () => {
       tabBar={props => <BottomNav {...props} />}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Notification" component={NotificationScreen} />
       <Tab.Screen name="Account" component={AccountScreen} />
       <Tab.Screen name="Setting" component={SettingScreen} />
-      <Tab.Screen name="Notification" component={NotificationScreen} />
     </Tab.Navigator>
   );
 };
@@ -47,16 +47,3 @@ const App = () => {
 };
 
 export default App;
-
-// import React from 'react'
-// import { View, Text } from 'react-native'
-
-// const App = () => {
-//   return (
-//     <View>
-//       <Text>App</Text>
-//     </View>
-//   )
-// }
-
-// export default App
