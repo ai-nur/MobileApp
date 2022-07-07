@@ -12,13 +12,11 @@ import {
 import {userServiceApi} from '../../config/apiConfig';
 
 export const login = body => async dispatch => {
-  console.log("ok")
   dispatch({
     type: LOGIN_REQUEST,
   });
   try {
     const response = await userServiceApi.post('/api/v1/Login', body);
-    console.log(response.data)
     dispatch({
       type: LOGIN_SUCCESS,
       payload: {
@@ -27,9 +25,11 @@ export const login = body => async dispatch => {
       },
     });
   } catch (error) {
-    console.log(error);
     dispatch({
       type: LOGIN_FAILED,
+      payload: {
+        error: error,
+      },
     });
   }
 };

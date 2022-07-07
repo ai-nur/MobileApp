@@ -2,7 +2,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
-import BottomNav from './src/components/BottomNav/BottomNav';
+import {BottomNav} from './src/components';
 import {
   AccountScreen,
   HomeScreen,
@@ -11,6 +11,7 @@ import {
   RegisterScreen,
   SettingScreen,
   SplashScreen,
+  DetailScreen,
 } from './src/screens';
 
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,7 @@ const App = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Main" component={MainApp} />
+        <Stack.Screen name="Detail" component={DetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

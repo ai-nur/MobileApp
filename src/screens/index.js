@@ -5,6 +5,7 @@ import NotificationScreen from './NotificationScreen';
 import RegisterScreen from './RegisterScreen';
 import SettingScreen from './SettingScreen';
 import SplashScreen from './SplashScreen';
+import DetailScreen from './DetailScreen';
 
 export {
   AccountScreen,
@@ -14,4 +15,5 @@ export {
   RegisterScreen,
   SettingScreen,
   SplashScreen,
+  DetailScreen,
 };
