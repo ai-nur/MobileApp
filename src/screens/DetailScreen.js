@@ -18,20 +18,13 @@ const DetailScreen = props => {
     if (props.detailCampaign.data && detailCampaign === null) {
       setDetailCampaign(props.detailCampaign.data);
     }
-    if (props.listCampaign.data.data && listCampaign === null) {
-      setListCampaign(props.listCampaign.data.data);
-    }
   }, [props.detailCampaign, props.listCampaign]);
-  console.log('LIST_CAMPAIGN', listCampaign);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.detail}>
         <Text style={styles.text}>Detail Screen</Text>
         <Text style={styles.text}>{detailCampaign?.name}</Text>
-        <Text style={styles.text}>
-          {listCampaign !== null ? listCampaign[0]?.createdDate : null}
-        </Text>
       </View>
     </ScrollView>
   );
